@@ -21,8 +21,7 @@ abstract class GraphicDatabase : RoomDatabase() {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
                         GraphicDatabase::class.java, "graphics"
-                    )
-                        .build()
+                    ).build()
                     Companion.INSTANCE = instance
                 }
                 return instance
