@@ -1,5 +1,6 @@
 package com.github.alex_a4.chartcreator
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -37,13 +38,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun addGraphicClick(view: View) {
-//        val myPasswordsIntent = Intent(this, MyPasswordsActivity::class.java)
-//        startActivity(myPasswordsIntent)
+//        val addActivity = Intent(this, AddGraphicActivity::class.java)
+//        startActivity(addActivity)
     }
 
     fun viewHistoryClick(view: View) {
-//        val myPasswordsIntent = Intent(this, MyPasswordsActivity::class.java)
-//        startActivity(myPasswordsIntent)
+        val historyIntent = Intent(this, HistoryActivity::class.java)
+        startActivity(historyIntent)
     }
 
     private fun createGraphic(graphic: Graphic) {
