@@ -6,8 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.github.alex_a4.chartcreator.models.Graphic
+import com.github.alex_a4.chartcreator.models.GraphicFunction
 
-@Database(entities = [Graphic::class], version = 1)
+@Database(entities = [Graphic::class, GraphicFunction::class], version = 1)
 @TypeConverters(GraphicConverter::class)
 abstract class GraphicDatabase : RoomDatabase() {
     companion object {

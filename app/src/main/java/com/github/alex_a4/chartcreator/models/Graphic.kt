@@ -1,19 +1,20 @@
 package com.github.alex_a4.chartcreator.models
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
+import com.github.alex_a4.chartcreator.database.GraphicConverter
+import com.google.gson.annotations.SerializedName
 
 
 // Класс графика, на котором была построена одна или несколько функций
 @Entity(tableName = "graphics")
 data class Graphic(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    val id: Long = 0L,
+    @ColumnInfo
+    var id: Long = 0L,
 
-    @ColumnInfo(name = "functions")
-    val functions: MutableList<GraphicFunction>
+    @SerializedName("functions")
+    @TypeConverters(GraphicConverter::class)
+    var functions: MutableList<GraphicFunction>
 ) {
     override fun toString(): String = "$id, $functions"
 }

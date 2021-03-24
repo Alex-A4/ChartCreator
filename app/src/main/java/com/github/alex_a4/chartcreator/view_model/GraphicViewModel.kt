@@ -1,6 +1,7 @@
 package com.github.alex_a4.chartcreator.view_model
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.*
 import com.github.alex_a4.chartcreator.database.GraphicDao
 import com.github.alex_a4.chartcreator.models.Graphic
@@ -29,8 +30,8 @@ class GraphicViewModel(private val dao: GraphicDao, application: Application) :
 
     private suspend fun getGraphicsFromDB(): MutableList<Graphic> {
         return withContext(Dispatchers.IO) {
-            val pwd = dao.getGraphics()
-            pwd
+            val gr = dao.getGraphics()
+            gr
         }
     }
 
@@ -42,9 +43,10 @@ class GraphicViewModel(private val dao: GraphicDao, application: Application) :
 
     fun addGraphic(function: String, color: Int, width: Int) {
         uiScope.launch {
-            val list = mutableListOf(GraphicFunction(function, color, width))
+            val list = mutableListOf(GraphicFunction(0L, function, color, width))
             val gr = Graphic(0L, list)
             _graphics.value?.add(gr)
+            _graphics.value = _graphics.value
             insert(gr)
         }
     }
@@ -71,7 +73,7 @@ class GraphicViewModel(private val dao: GraphicDao, application: Application) :
     fun addFunctionToGraphic(index: Int, function: String, color: Int, width: Int) {
         uiScope.launch {
             val graphic = _graphics.value!![index]
-            graphic.functions.add(GraphicFunction(function, color, width))
+            graphic.functions.add(GraphicFunction(0L, function, color, width))
         }
     }
 
@@ -86,7 +88,7 @@ class GraphicViewModel(private val dao: GraphicDao, application: Application) :
 class GraphicViewModelFactory(private val dao: GraphicDao, private val application: Application) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(Graphic::class.java)) {
+        if (modelClass.isAssignableFrom(GraphicViewModel::class.java)) {
             return GraphicViewModel(dao, application) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

@@ -33,6 +33,8 @@
     <com.jjoe64.graphview.GraphView
         android:id="@+id/last_graphic"
         android:layout_width="match_parent"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
         android:layout_height="300px"
         android:layout_marginTop="12dp"
         android:visibility="invisible"

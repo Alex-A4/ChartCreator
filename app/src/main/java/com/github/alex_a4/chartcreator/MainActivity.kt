@@ -1,6 +1,7 @@
 package com.github.alex_a4.chartcreator
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatTextView
@@ -30,13 +31,12 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.graphics.observe(this, { gr ->
             if (gr.isNotEmpty()) {
-                createGraphic(gr.first())
+                createGraphic(gr.last())
             }
         })
     }
 
     fun addGraphicClick(view: View) {
-        viewModel.addGraphic("x^2", 0xFF0000, 2)
 //        val myPasswordsIntent = Intent(this, MyPasswordsActivity::class.java)
 //        startActivity(myPasswordsIntent)
     }
@@ -52,19 +52,23 @@ class MainActivity : AppCompatActivity() {
         graphicText.visibility = View.VISIBLE
         graphicView.visibility = View.VISIBLE
 
-        graphicView.series.clear();
-        for (function in graphic.functions) {
-            val series: LineGraphSeries<DataPoint> = LineGraphSeries()
-            var x: Double = -100.0
-            while (x <= 100.0) {
-                val expression = MathExpression("x=$x;${graphic.functions}")
-                val y = expression.solve().toDouble()
-                series.appendData(DataPoint(x, y), true, 500)
-                x += 1
+        graphicView.series.clear()
+        try {
+            for (function in graphic.functions) {
+                val series: LineGraphSeries<DataPoint> = LineGraphSeries()
+                var x: Double = -100.0
+                while (x <= 100.0) {
+                    val expression = MathExpression("x=$x;${function.function};")
+                    val y = expression.solve().toDouble()
+                    series.appendData(DataPoint(x, y), true, 500)
+                    x += 1
+                }
+                series.title = function.function
+                series.color = function.color
+                graphicView.addSeries(series)
             }
-            series.title = function.function
-            series.color = function.color
-            graphicView.addSeries(series)
+        } catch (e: Exception) {
+            Log.e("Exception:", e.toString())
         }
     }
 }
