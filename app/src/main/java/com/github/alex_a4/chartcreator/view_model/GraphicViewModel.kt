@@ -61,6 +61,7 @@ class GraphicViewModel(private val dao: GraphicDao, application: Application) :
         uiScope.launch {
             val graphic = _graphics.value!!.removeAt(index)
             delete(graphic)
+            _graphics.value = _graphics.value
         }
     }
 
@@ -74,6 +75,8 @@ class GraphicViewModel(private val dao: GraphicDao, application: Application) :
         uiScope.launch {
             val graphic = _graphics.value!![index]
             graphic.functions.add(GraphicFunction(0L, function, color, width))
+            updateGraphic(graphic)
+            _graphics.value = _graphics.value
         }
     }
 
