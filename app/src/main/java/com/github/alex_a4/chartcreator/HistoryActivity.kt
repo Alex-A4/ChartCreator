@@ -91,6 +91,7 @@ class GraphicsAdapter(
         private val functions = itemView.findViewById<LinearLayout>(R.id.history_functions_list)
 
         fun bind(item: Graphic) {
+            functions.removeViews(0, functions.childCount)
             item.functions.forEach { f ->
                 functions.addView(TextView(itemView.context).apply {
                     text = f.function
