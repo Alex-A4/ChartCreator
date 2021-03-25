@@ -2,7 +2,6 @@ package com.github.alex_a4.chartcreator
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatTextView
@@ -11,16 +10,18 @@ import com.github.alex_a4.chartcreator.database.GraphicDatabase
 import com.github.alex_a4.chartcreator.models.Graphic
 import com.github.alex_a4.chartcreator.view_model.GraphicViewModel
 import com.github.alex_a4.chartcreator.view_model.GraphicViewModelFactory
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.itis.libs.parserng.android.expressParser.MathExpression
-import com.jjoe64.graphview.GraphView
-import com.jjoe64.graphview.series.DataPoint
-import com.jjoe64.graphview.series.LineGraphSeries
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: GraphicViewModel
 
-    private lateinit var graphicView: GraphView
+    private lateinit var graphicView: LineChart
     private lateinit var graphicText: AppCompatTextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +35,6 @@ class MainActivity : AppCompatActivity() {
             .get(GraphicViewModel::class.java)
 
         viewModel.graphics.observe(this, { gr ->
-            Log.i("Main Graphics: ", gr.size.toString())
             if (gr.isNotEmpty()) {
                 createGraphic(gr.last())
             } else {
@@ -60,24 +60,36 @@ class MainActivity : AppCompatActivity() {
     private fun createGraphic(graphic: Graphic) {
         graphicText.visibility = View.VISIBLE
         graphicView.visibility = View.VISIBLE
+        graphicView.isDragEnabled = true
+        graphicView.setScaleEnabled(true)
 
-        graphicView.series.clear()
+        val dataSets: ArrayList<ILineDataSet> = ArrayList()
+
+        graphicView.clear()
         try {
             for (function in graphic.functions) {
-                val series: LineGraphSeries<DataPoint> = LineGraphSeries()
-                var x: Double = -20.0
-                while (x <= 20.0) {
+                val data = mutableListOf<Entry>()
+                var x: Float = -20.0F
+                while (x <= 20.0F) {
                     val expression = MathExpression("x=$x;${function.function};")
-                    val y = expression.solve().toDouble()
-                    series.appendData(DataPoint(x, y), false, 500)
+                    val y = expression.solve().toFloat()
+                    if (!y.isNaN() && !y.isInfinite()) {
+                        data.add(Entry(x, y))
+                    }
                     x += 1
                 }
-                series.title = function.function
+                val series = LineDataSet(data, function.function)
                 series.color = function.color
-                graphicView.addSeries(series)
+                series.valueTextSize = 0.0F
+                series.setDrawCircles(false)
+                series.setDrawCircleHole(false)
+                series.lineWidth = function.width.toFloat()
+                dataSets.add(series)
             }
+
+            val data = LineData(dataSets)
+            graphicView.data = data
         } catch (e: Exception) {
-            Log.e("Exception:", e.toString())
         }
     }
 }

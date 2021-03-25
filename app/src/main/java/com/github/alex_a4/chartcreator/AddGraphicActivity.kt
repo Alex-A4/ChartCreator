@@ -2,7 +2,6 @@ package com.github.alex_a4.chartcreator
 
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -19,10 +18,12 @@ import com.github.alex_a4.chartcreator.database.GraphicDatabase
 import com.github.alex_a4.chartcreator.models.GraphicFunction
 import com.github.alex_a4.chartcreator.view_model.GraphicViewModel
 import com.github.alex_a4.chartcreator.view_model.GraphicViewModelFactory
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.itis.libs.parserng.android.expressParser.MathExpression
-import com.jjoe64.graphview.GraphView
-import com.jjoe64.graphview.series.DataPoint
-import com.jjoe64.graphview.series.LineGraphSeries
 import top.defaults.colorpicker.ColorPickerPopup
 
 
@@ -36,7 +37,7 @@ class AddGraphicActivity : AppCompatActivity() {
     private lateinit var functionInput: EditText
     private lateinit var widthInput: EditText
     private lateinit var colorButton: AppCompatButton
-    private lateinit var graphicView: GraphView
+    private lateinit var graphicView: LineChart
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,29 +59,42 @@ class AddGraphicActivity : AppCompatActivity() {
         })
 
         graphicView = findViewById(R.id.add_graphic_view)
+        graphicView.isDragEnabled = true
+        graphicView.setScaleEnabled(true)
+
         functionInput = findViewById(R.id.add_graphic_function_edit)
         widthInput = findViewById(R.id.add_graphic_function_width)
         colorButton = findViewById(R.id.add_graphic_color_pick)
     }
 
     private fun updateGraphic(f: MutableList<GraphicFunction>) {
-        graphicView.series.clear()
         try {
+            graphicView.clear()
+            val dataSets: ArrayList<ILineDataSet> = ArrayList()
             for (function in f) {
-                val series: LineGraphSeries<DataPoint> = LineGraphSeries()
-                var x: Double = -20.0
-                while (x <= 20.0) {
-                    val expression = MathExpression("x=$x;${function.function};")
-                    val y = expression.solve().toDouble()
-                    series.appendData(DataPoint(x, y), true, 500)
+                val data = mutableListOf<Entry>()
+                var x: Float = -20.0F
+                while (x <= 20.0F) {
+                    val expression = MathExpression("x=$x;${function.function}")
+                    val y = expression.solve().toFloat()
+                    if (!y.isNaN() && !y.isInfinite()) {
+                        data.add(Entry(x, y))
+                    }
                     x += 1
                 }
-                series.title = function.function
+                val series = LineDataSet(data, function.function)
                 series.color = function.color
-                graphicView.addSeries(series)
+                series.valueTextSize = 0.0F
+                series.setDrawCircles(false)
+                series.setDrawCircleHole(false)
+                series.lineWidth = function.width.toFloat()
+                dataSets.add(series)
             }
+            val data = LineData(dataSets)
+            graphicView.data = data
+            graphicView.notifyDataSetChanged()
         } catch (e: Exception) {
-            Log.e("Exception:", e.toString())
+            Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -96,7 +110,6 @@ class AddGraphicActivity : AppCompatActivity() {
                 (colorButton.background as ColorDrawable).color,
                 widthInput.text.toString().toInt(),
             )
-            Log.i("Added function", func.toString())
             functions.value!!.add(func)
             functions.value = functions.value
             functionInput.text.clear()

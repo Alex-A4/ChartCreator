@@ -103,7 +103,7 @@
 
     </androidx.recyclerview.widget.RecyclerView>
 
-    <com.jjoe64.graphview.GraphView
+    <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/add_graphic_view"
         android:layout_width="match_parent"
         android:layout_height="300dp"

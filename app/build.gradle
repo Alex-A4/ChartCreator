@@ -47,9 +47,9 @@ dependencies {
     implementation 'com.github.duanhong169:colorpicker:1.1.6'
 //  https://github.com/gbenroscience/parserng-android
     implementation 'com.github.gbenroscience:parserng-android:0.1.1'
-//    https://github.com/jjoe64/GraphView
-    implementation 'com.jjoe64:graphview:4.2.2'
 
+//    https://github.com/PhilJay/MPAndroidChart
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     def room_version = "2.2.6"
 
     implementation "androidx.room:room-runtime:$room_version"

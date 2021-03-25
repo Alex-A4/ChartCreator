@@ -1,6 +1,5 @@
 package com.github.alex_a4.chartcreator
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,10 +16,12 @@ import com.github.alex_a4.chartcreator.database.GraphicDatabase
 import com.github.alex_a4.chartcreator.models.Graphic
 import com.github.alex_a4.chartcreator.view_model.GraphicViewModel
 import com.github.alex_a4.chartcreator.view_model.GraphicViewModelFactory
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.itis.libs.parserng.android.expressParser.MathExpression
-import com.jjoe64.graphview.GraphView
-import com.jjoe64.graphview.series.DataPoint
-import com.jjoe64.graphview.series.LineGraphSeries
 
 class HistoryActivity : AppCompatActivity() {
     private lateinit var viewModel: GraphicViewModel
@@ -30,11 +31,6 @@ class HistoryActivity : AppCompatActivity() {
         GraphicsAdapter(
             deleteCallback = { i: Int ->
                 viewModel.deleteGraphic(i)
-            },
-            openCallback = { i: Int ->
-                val intent = Intent(this, GraphicActivity::class.java)
-                intent.putExtra(GraphicActivity.graphicIndexKey, i)
-                startActivity(intent)
             },
         )
 
@@ -73,7 +69,6 @@ class HistoryActivity : AppCompatActivity() {
 class GraphicsAdapter(
     private var items: List<Graphic> = mutableListOf(),
     val deleteCallback: (index: Int) -> Unit,
-    val openCallback: (index: Int) -> Unit,
 ) :
     RecyclerView.Adapter<GraphicsAdapter.GraphicsHolder>() {
 
@@ -83,13 +78,14 @@ class GraphicsAdapter(
     }
 
     inner class GraphicsHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val openButton = itemView.findViewById<AppCompatButton>(R.id.history_item_open)
         private val deleteButton = itemView.findViewById<AppCompatButton>(R.id.history_item_delete)
-        private val graphic = itemView.findViewById<GraphView>(R.id.history_item_graphic)
+        private val graphic = itemView.findViewById<LineChart>(R.id.history_item_graphic)
         private val functions = itemView.findViewById<LinearLayout>(R.id.history_functions_list)
 
         fun bind(item: Graphic) {
             functions.removeViews(0, functions.childCount)
+            graphic.isDragEnabled = true
+            graphic.setScaleEnabled(true)
             item.functions.forEach { f ->
                 functions.addView(TextView(itemView.context).apply {
                     text = f.function
@@ -103,9 +99,6 @@ class GraphicsAdapter(
                 })
             }
             calculateGraphicFunctions(item)
-            openButton.setOnClickListener {
-                openCallback(adapterPosition)
-            }
             deleteButton.setOnClickListener {
                 deleteCallback(adapterPosition)
             }
@@ -113,19 +106,28 @@ class GraphicsAdapter(
 
         private fun calculateGraphicFunctions(item: Graphic) {
             try {
+                val dataSets: ArrayList<ILineDataSet> = ArrayList()
                 for (function in item.functions) {
-                    val series: LineGraphSeries<DataPoint> = LineGraphSeries()
-                    var x: Double = -100.0
-                    while (x <= 100.0) {
+                    val data = mutableListOf<Entry>()
+                    var x: Float = -20.0F
+                    while (x <= 20.0F) {
                         val expression = MathExpression("x=$x;${function.function};")
-                        val y = expression.solve().toDouble()
-                        series.appendData(DataPoint(x, y), true, 500)
+                        val y = expression.solve().toFloat()
+                        if (!y.isNaN() && !y.isInfinite()) {
+                            data.add(Entry(x, y))
+                        }
                         x += 1
                     }
-                    series.title = function.function
+                    val series = LineDataSet(data, function.function)
                     series.color = function.color
-                    graphic.addSeries(series)
+                    series.valueTextSize = 0.0F
+                    series.setDrawCircles(false)
+                    series.setDrawCircleHole(false)
+                    series.lineWidth = function.width.toFloat()
+                    dataSets.add(series)
                 }
+                val data = LineData(dataSets)
+                graphic.data = data
             } catch (e: Exception) {
                 Log.e("Exception:", e.toString())
             }
