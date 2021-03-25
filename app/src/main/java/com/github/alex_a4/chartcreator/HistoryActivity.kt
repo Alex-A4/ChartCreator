@@ -26,16 +26,14 @@ class HistoryActivity : AppCompatActivity() {
     private lateinit var viewModel: GraphicViewModel
     private lateinit var historyGraphicList: RecyclerView
 
-    private val adapter =
+    private val adapter: GraphicsAdapter =
         GraphicsAdapter(
             deleteCallback = { i: Int ->
-                val index = viewModel.graphics.value!!.size - i - 1
-                viewModel.deleteGraphic(index)
+                viewModel.deleteGraphic(i)
             },
             openCallback = { i: Int ->
-                val index = viewModel.graphics.value!!.size - i - 1
                 val intent = Intent(this, GraphicActivity::class.java)
-                intent.putExtra(GraphicActivity.graphicIndexKey, index)
+                intent.putExtra(GraphicActivity.graphicIndexKey, i)
                 startActivity(intent)
             },
         )
@@ -96,6 +94,12 @@ class GraphicsAdapter(
                 functions.addView(TextView(itemView.context).apply {
                     text = f.function
                     textSize = 15.0F
+                    val params = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    params.marginEnd = 20
+                    layoutParams = params
                 })
             }
             calculateGraphicFunctions(item)
@@ -143,7 +147,7 @@ class GraphicsAdapter(
 
 
     override fun onBindViewHolder(holder: GraphicsHolder, i: Int) {
-        holder.bind(items[itemCount - i - 1])
+        holder.bind(items[i])
     }
 
 }

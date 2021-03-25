@@ -41,10 +41,9 @@ class GraphicViewModel(private val dao: GraphicDao, application: Application) :
         viewModelJob.cancel()
     }
 
-    fun addGraphic(function: String, color: Int, width: Int) {
+    fun addGraphic(functions: MutableList<GraphicFunction>) {
         uiScope.launch {
-            val list = mutableListOf(GraphicFunction(0L, function, color, width))
-            val gr = Graphic(0L, list)
+            val gr = Graphic(0L, functions)
             _graphics.value?.add(gr)
             _graphics.value = _graphics.value
             insert(gr)

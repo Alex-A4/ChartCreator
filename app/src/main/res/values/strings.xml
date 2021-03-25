@@ -5,4 +5,8 @@
     <string name="last_graphic">Последний график:</string>
     <string name="open_graphic">Открыть график:</string>
     <string name="delete_graphic">Удалить график:</string>
+    <string name="save_word">Сохранить</string>
+    <string name="add_function_word">Добавить функцию</string>
+    <string name="width_word">Ширина:</string>
+    <string name="function_example">x^2, используйте x</string>
 </resources>

@@ -20,6 +20,9 @@ import com.jjoe64.graphview.series.LineGraphSeries
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: GraphicViewModel
 
+    private lateinit var graphicView: GraphView
+    private lateinit var graphicText: AppCompatTextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -31,15 +34,22 @@ class MainActivity : AppCompatActivity() {
             .get(GraphicViewModel::class.java)
 
         viewModel.graphics.observe(this, { gr ->
+            Log.i("Main Graphics: ", gr.size.toString())
             if (gr.isNotEmpty()) {
                 createGraphic(gr.last())
+            } else {
+                graphicText.visibility = View.INVISIBLE
+                graphicView.visibility = View.INVISIBLE
             }
         })
+
+        graphicView = findViewById(R.id.last_graphic)
+        graphicText = findViewById(R.id.last_graphic_text)
     }
 
     fun addGraphicClick(view: View) {
-//        val addActivity = Intent(this, AddGraphicActivity::class.java)
-//        startActivity(addActivity)
+        val addActivity = Intent(this, AddGraphicActivity::class.java)
+        startActivity(addActivity)
     }
 
     fun viewHistoryClick(view: View) {
@@ -48,8 +58,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createGraphic(graphic: Graphic) {
-        val graphicView: GraphView = findViewById(R.id.last_graphic)
-        val graphicText: AppCompatTextView = findViewById(R.id.last_graphic_text)
         graphicText.visibility = View.VISIBLE
         graphicView.visibility = View.VISIBLE
 
@@ -57,11 +65,11 @@ class MainActivity : AppCompatActivity() {
         try {
             for (function in graphic.functions) {
                 val series: LineGraphSeries<DataPoint> = LineGraphSeries()
-                var x: Double = -100.0
-                while (x <= 100.0) {
+                var x: Double = -20.0
+                while (x <= 20.0) {
                     val expression = MathExpression("x=$x;${function.function};")
                     val y = expression.solve().toDouble()
-                    series.appendData(DataPoint(x, y), true, 500)
+                    series.appendData(DataPoint(x, y), false, 500)
                     x += 1
                 }
                 series.title = function.function
