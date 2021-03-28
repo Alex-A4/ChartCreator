@@ -47,6 +47,11 @@ class MainActivity : AppCompatActivity() {
         graphicText = findViewById(R.id.last_graphic_text)
     }
 
+    override fun onStart() {
+        viewModel.initGraphics()
+        super.onStart()
+    }
+
     fun addGraphicClick(view: View) {
         val addActivity = Intent(this, AddGraphicActivity::class.java)
         startActivity(addActivity)

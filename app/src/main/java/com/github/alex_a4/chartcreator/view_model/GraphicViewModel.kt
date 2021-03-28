@@ -19,10 +19,10 @@ class GraphicViewModel(private val dao: GraphicDao, application: Application) :
     val graphics: LiveData<MutableList<Graphic>> get() = _graphics
 
     init {
-        initPasswords()
+        initGraphics()
     }
 
-    private fun initPasswords() {
+    fun initGraphics() {
         uiScope.launch {
             _graphics.value = getGraphicsFromDB()
         }
